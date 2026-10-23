@@ -313,8 +313,76 @@ function initFloatingBall() {
     });
 }
 
+// Subtle Hacker Matrix Rain Effect in Background
+function initHackerMatrix() {
+    const canvas = document.getElementById("matrixCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener("resize", () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        columns = Math.floor(width / fontSize);
+        drops = Array(columns).fill(1);
+    });
+
+    const characters = "0123456789010101AIWINGOBDG793HEX#$&%*+<>";
+    const fontSize = 14;
+    let columns = Math.floor(width / fontSize);
+    let drops = Array(columns).fill(1);
+
+    // Randomize initial drop positions so it doesn't fall in a flat line
+    for (let i = 0; i < columns; i++) {
+        drops[i] = Math.floor(Math.random() * -50);
+    }
+
+    let lastDraw = 0;
+    const fpsInterval = 1000 / 28; // Smooth 28 fps for subtle hacker stream
+
+    function drawMatrix(timestamp) {
+        requestAnimationFrame(drawMatrix);
+        if (timestamp - lastDraw < fpsInterval) return;
+        lastDraw = timestamp;
+
+        // Pure deep dark fade trail
+        ctx.fillStyle = "rgba(2, 3, 6, 0.16)";
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const char = characters[Math.floor(Math.random() * characters.length)];
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
+
+            // Deep cyber glow
+            const rand = Math.random();
+            if (rand > 0.88) {
+                ctx.fillStyle = "#ff1e56"; // Cyber red
+            } else if (rand > 0.72) {
+                ctx.fillStyle = "#00f2fe"; // Cyber cyan
+            } else {
+                ctx.fillStyle = "#00ff88"; // High contrast Matrix green
+            }
+
+            ctx.fillText(char, x, y);
+
+            if (y > height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+
+    requestAnimationFrame(drawMatrix);
+}
+
 // Start live 1-second interval loop on load
 document.addEventListener("DOMContentLoaded", () => {
+    initHackerMatrix();
     initFloatingBall();
     tickClock();
     setInterval(tickClock, 1000); // Ticks every exact second
